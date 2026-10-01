@@ -1,0 +1,16 @@
+# Локальная база для разработки. На кафедральном сервере вместо неё используется хост pg / база studs.
+services:
+  postgres:
+    image: postgres:16
+    container_name: is_lab_1_postgres
+    environment:
+      POSTGRES_DB: studs
+      POSTGRES_USER: studs
+      POSTGRES_PASSWORD: studs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
