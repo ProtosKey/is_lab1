@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Информационная система «Города»</title>
+</head>
+<body>
+
+<h1>Информационная система «Города»</h1>
+
+<div id="auth-screen">
+    <h2>Вход в систему</h2>
+    <form id="auth-form">
+        <p>
+            <label for="auth-login">Логин</label>
+            <input id="auth-login" name="login" autocomplete="username">
+            <span class="error" data-error-for="login"></span>
+        </p>
+        <p>
+            <label for="auth-password">Пароль</label>
+            <input id="auth-password" name="password" type="password" autocomplete="current-password">
+            <span class="error" data-error-for="password"></span>
+        </p>
+        <p>
+            <button type="submit" value="login">Войти</button>
+            <button type="submit" value="register" formnovalidate>Зарегистрироваться</button>
+        </p>
+    </form>
+</div>
+
+<div id="app-screen" hidden>
+    <p>
+        Пользователь: <b id="current-user"></b>
+        <button type="button" id="logout-button">Выйти</button>
+    </p>
+
+    <nav>
+        <button type="button" data-view="cities">Список городов</button>
+        <button type="button" data-view="details">Просмотр по id</button>
+        <button type="button" data-view="references">Координаты и губернаторы</button>
+        <button type="button" data-view="special">Специальные операции</button>
+    </nav>
+
+    <hr>
+
+    <!-- Список городов -->
+    <section id="view-cities">
+        <h2>Список городов</h2>
+
+        <p>
+            <label for="filter-field">Фильтровать по колонке</label>
+            <select id="filter-field">
+                <option value="name">Название</option>
+                <option value="governor">Губернатор</option>
+                <option value="climate">Климат</option>
+                <option value="standardOfLiving">Уровень жизни</option>
+            </select>
+
+            <label for="filter-value">содержит</label>
+            <input id="filter-value">
+
+            <label for="page-size">Строк на странице</label>
+            <select id="page-size">
+                <option>5</option>
+                <option selected>10</option>
+                <option>25</option>
+            </select>
+
+            <button type="button" id="apply-filter">Применить</button>
+            <button type="button" id="create-city">Создать город</button>
+        </p>
+
+        <table border="1" id="cities-table">
+            <thead>
+            <tr id="cities-head"></tr>
+            </thead>
+            <tbody id="cities-body"></tbody>
+        </table>
+
+        <p id="cities-empty" hidden>Ни один город не подходит под условия фильтра.</p>
+
+        <p>
+            <button type="button" data-page-step="first">&laquo;</button>
+            <button type="button" data-page-step="prev">&lsaquo;</button>
+            <span id="pager-status"></span>
+            <button type="button" data-page-step="next">&rsaquo;</button>
+            <button type="button" data-page-step="last">&raquo;</button>
+        </p>
+    </section>
+
+    <section id="view-city-form" hidden>
+        <h2 id="city-form-title">Новый город</h2>
+
+        <form id="city-form">
+            <p>
+                <label for="city-name">Название *</label>
+                <input id="city-name" name="name">
+                <span class="error" data-error-for="name"></span>
+            </p>
+            <p>
+                <label for="city-coordinates">Координаты *</label>
+                <select id="city-coordinates" name="coordinatesId"></select>
+                <span class="error" data-error-for="coordinatesId"></span>
+            </p>
+            <p>
+                <label for="city-governor">Губернатор *</label>
+                <select id="city-governor" name="governorId"></select>
+                <span class="error" data-error-for="governorId"></span>
+            </p>
+            <p>
+                <label for="city-area">Площадь *</label>
+                <input id="city-area" name="area" type="number">
+                <span class="error" data-error-for="area"></span>
+            </p>
+            <p>
+                <label for="city-population">Население *</label>
+                <input id="city-population" name="population" type="number">
+                <span class="error" data-error-for="population"></span>
+            </p>
+            <p>
+                <label for="city-density">Плотность населения *</label>
+                <input id="city-density" name="populationDensity" type="number" step="any">
+                <span class="error" data-error-for="populationDensity"></span>
+            </p>
+            <p>
+                <label for="city-established">Дата основания</label>
+                <input id="city-established" name="establishmentDate" type="datetime-local">
+                <span class="error" data-error-for="establishmentDate"></span>
+            </p>
+            <p>
+                <label for="city-meters">Высота над уровнем моря</label>
+                <input id="city-meters" name="metersAboveSeaLevel" type="number" step="any">
+                <span class="error" data-error-for="metersAboveSeaLevel"></span>
+            </p>
+            <p>
+                <label for="city-climate">Климат</label>
+                <select id="city-climate" name="climate">
+                    <option value="">— не задан —</option>
+                    <option value="RAIN_FOREST">RAIN_FOREST</option>
+                    <option value="TUNDRA">TUNDRA</option>
+                    <option value="POLAR_ICECAP">POLAR_ICECAP</option>
+                </select>
+                <span class="error" data-error-for="climate"></span>
+            </p>
+            <p>
+                <label for="city-standard">Уровень жизни *</label>
+                <select id="city-standard" name="standardOfLiving">
+                    <option value="">— не выбрано —</option>
+                    <option value="VERY_HIGH">VERY_HIGH</option>
+                    <option value="HIGH">HIGH</option>
+                    <option value="NIGHTMARE">NIGHTMARE</option>
+                </select>
+                <span class="error" data-error-for="standardOfLiving"></span>
+            </p>
+            <p>
+                <label for="city-capital">Столица</label>
+                <input id="city-capital" name="capital" type="checkbox">
+            </p>
+            <p>
+                Координаты и губернаторы выбираются из уже существующих в системе.
+                Новые заводятся на вкладке «Координаты и губернаторы».
+            </p>
+            <p>
+                <button type="submit">Сохранить</button>
+                <button type="button" id="city-form-cancel">Отмена</button>
+            </p>
+        </form>
+    </section>
+
+    <section id="view-details" hidden>
+        <h2>Получение информации об объекте по идентификатору</h2>
+        <p>
+            <label for="details-id">Идентификатор города</label>
+            <input id="details-id" type="number">
+            <button type="button" id="details-search">Показать</button>
+        </p>
+        <div id="details-result"></div>
+    </section>
+
+    <section id="view-references" hidden>
+        <h2>Координаты</h2>
+        <form id="coordinates-form">
+            <input type="hidden" name="id">
+            <p>
+                <label for="coordinates-x">x (не больше 974)</label>
+                <input id="coordinates-x" name="x" type="number">
+                <span class="error" data-error-for="x"></span>
+            </p>
+            <p>
+                <label for="coordinates-y">y</label>
+                <input id="coordinates-y" name="y" type="number">
+                <span class="error" data-error-for="y"></span>
+            </p>
+            <p>
+                <button type="submit">Сохранить координаты</button>
+                <button type="button" id="coordinates-reset">Очистить форму</button>
+            </p>
+        </form>
+
+        <table border="1">
+            <thead>
+            <tr><th>id</th><th>x</th><th>y</th><th>Действия</th></tr>
+            </thead>
+            <tbody id="coordinates-body"></tbody>
+        </table>
+
+        <h2>Губернаторы</h2>
+        <form id="human-form">
+            <input type="hidden" name="id">
+            <p>
+                <label for="human-name">Имя</label>
+                <input id="human-name" name="name">
+                <span class="error" data-error-for="name"></span>
+            </p>
+            <p>
+                <label for="human-age">Возраст</label>
+                <input id="human-age" name="age" type="number">
+                <span class="error" data-error-for="age"></span>
+            </p>
+            <p>
+                <label for="human-birthday">Дата рождения</label>
+                <input id="human-birthday" name="birthday" type="date">
+                <span class="error" data-error-for="birthday"></span>
+            </p>
+            <p>
+                <button type="submit">Сохранить губернатора</button>
+                <button type="button" id="human-reset">Очистить форму</button>
+            </p>
+        </form>
+
+        <table border="1">
+            <thead>
+            <tr><th>id</th><th>Имя</th><th>Возраст</th><th>Дата рождения</th><th>Действия</th></tr>
+            </thead>
+            <tbody id="humans-body"></tbody>
+        </table>
+
+        <div id="delete-dialog" hidden>
+            <h2 id="delete-title"></h2>
+            <div id="delete-linked"></div>
+            <p id="delete-replacement-row" hidden>
+                <label for="delete-replacement">Заменить на</label>
+                <select id="delete-replacement"></select>
+            </p>
+            <p>
+                <button type="button" id="delete-confirm">Удалить</button>
+                <button type="button" id="delete-cancel">Отмена</button>
+            </p>
+        </div>
+    </section>
+
+    <section id="view-special" hidden>
+        <h2>Удалить один город с заданным климатом</h2>
+        <p>
+            <label for="special-climate">Климат</label>
+            <select id="special-climate">
+                <option value="RAIN_FOREST">RAIN_FOREST</option>
+                <option value="TUNDRA">TUNDRA</option>
+                <option value="POLAR_ICECAP">POLAR_ICECAP</option>
+            </select>
+            <button type="button" id="special-delete-climate">Удалить город</button>
+        </p>
+
+        <h2>Количество городов с заданной высотой над уровнем моря</h2>
+        <p>
+            <label for="special-meters">Высота</label>
+            <input id="special-meters" type="number" step="any">
+            <button type="button" id="special-count">Посчитать</button>
+        </p>
+
+        <h2>Города, название которых содержит подстроку</h2>
+        <p>
+            <label for="special-part">Подстрока</label>
+            <input id="special-part">
+            <button type="button" id="special-search">Найти</button>
+        </p>
+        <div id="special-search-result"></div>
+
+        <h2>Переселить население города</h2>
+        <p>Население города не может быть нулевым, поэтому опустевший город удаляется.</p>
+        <p>
+            <label for="special-source">Откуда, id</label>
+            <input id="special-source" type="number">
+            <label for="special-target">Куда, id</label>
+            <input id="special-target" type="number">
+            <button type="button" id="special-move">Переселить</button>
+            <button type="button" id="special-move-smallest">Переселить в наименьший по населению</button>
+        </p>
+    </section>
+</div>
+
+<hr>
+<p id="message"></p>
+
+<script src="app.js"></script>
+</body>
+</html>
