@@ -13,12 +13,6 @@
         <session-timeout>60</session-timeout>
     </session-config>
 
-    <!--
-        Источник данных объявлен в самом приложении, поэтому сервер приложений
-        не требует ручной настройки пула соединений.
-        Для кафедрального сервера достаточно поменять server-name на "pg",
-        а user/password — на свои учётные данные.
-    -->
     <data-source>
         <name>java:app/jdbc/is_lab_1</name>
         <class-name>org.postgresql.ds.PGSimpleDataSource</class-name>
