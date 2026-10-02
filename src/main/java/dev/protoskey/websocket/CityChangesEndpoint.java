@@ -1,11 +1,11 @@
 package dev.protoskey.websocket;
 
 import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -23,16 +23,23 @@ public class CityChangesEndpoint {
         SESSIONS.remove(session);
     }
 
+    @OnError
+    public void onError(Session session, Throwable error) {
+        SESSIONS.remove(session);
+    }
+
     public static void broadcast(String message) {
         for (Session session : SESSIONS) {
             if (!session.isOpen()) {
                 SESSIONS.remove(session);
                 continue;
             }
-            try {
-                session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                SESSIONS.remove(session);
+            synchronized (session) {
+                try {
+                    session.getBasicRemote().sendText(message);
+                } catch (Exception e) {
+                    SESSIONS.remove(session);
+                }
             }
         }
     }
