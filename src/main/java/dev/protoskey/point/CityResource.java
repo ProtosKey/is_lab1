@@ -22,12 +22,16 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/cities")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CityResource {
+    private static final int MAX_PAGE_SIZE = 100;
+
     @Inject
     private CityService cityService;
 
@@ -43,7 +47,9 @@ public class CityResource {
                                  @QueryParam("sortField") @DefaultValue("id") String sortField,
                                  @QueryParam("ascending") @DefaultValue("true") boolean ascending,
                                  @QueryParam("page") @DefaultValue("1") int page,
-                                 @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
+                                 @QueryParam("pageSize") @DefaultValue("10") int pageSize)
+            throws ValidationException {
+        validatePaging(page, pageSize);
         CityQuery query = new CityQuery(filterField, filterValue, sortField, ascending,
                 (page - 1) * pageSize, pageSize);
 
@@ -81,5 +87,18 @@ public class CityResource {
     public Response delete(@PathParam("id") Integer id) throws EntityNotFoundException {
         cityService.delete(id);
         return Response.noContent().build();
+    }
+
+    private void validatePaging(int page, int pageSize) throws ValidationException {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (page < 1) {
+            errors.put("page", "Номер страницы должен быть не меньше 1");
+        }
+        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
+            errors.put("pageSize", "Размер страницы должен быть от 1 до " + MAX_PAGE_SIZE);
+        }
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors);
+        }
     }
 }
