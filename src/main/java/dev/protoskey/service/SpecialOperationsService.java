@@ -53,8 +53,7 @@ public class SpecialOperationsService {
     public City movePopulationToSmallest(Integer sourceId)
             throws EntityNotFoundException, NoCityToMoveException, PopulationOverflowException {
         City source = findCity(sourceId);
-        City target = cityRepository.findWithSmallestPopulation()
-                .filter(city -> !city.getId().equals(sourceId))
+        City target = cityRepository.findWithSmallestPopulationExcept(sourceId)
                 .orElseThrow(NoCityToMoveException::new);
         return move(source, target);
     }

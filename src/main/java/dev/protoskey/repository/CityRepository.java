@@ -86,8 +86,11 @@ public class CityRepository {
                 .findFirst();
     }
 
-    public Optional<City> findWithSmallestPopulation() {
-        return em.createQuery("select c from City c order by c.population asc, c.id asc", City.class)
+    public Optional<City> findWithSmallestPopulationExcept(Integer excludedId) {
+        return em.createQuery(
+                        "select c from City c where c.id <> :excludedId order by c.population asc, c.id asc",
+                        City.class)
+                .setParameter("excludedId", excludedId)
                 .setMaxResults(1)
                 .getResultList()
                 .stream()
