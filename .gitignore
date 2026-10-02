@@ -11,4 +11,5 @@ out/
 !**/src/test/**/out/
 .DS_Store
 *.swp
+what.md
 payara7/
