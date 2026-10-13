@@ -81,10 +81,14 @@ public class CityValidator extends AbstractValidator<CityDto> {
         if (date == null || date.isBlank()) {
             return;
         }
+        LocalDateTime parsed;
         try {
-            LocalDateTime.parse(date, LOCAL);
+            parsed = LocalDateTime.parse(date, LOCAL);
         } catch (DateTimeParseException e) {
             throw new InvalidFieldException("establishmentDate", "Некорректная дата основания");
+        }
+        if (parsed.isAfter(LocalDateTime.now())) {
+            throw new InvalidFieldException("establishmentDate", "Дата основания не может быть в будущем");
         }
     }
 }

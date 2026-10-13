@@ -2,7 +2,6 @@
 
 const API = "api";
 
-// Колонки таблицы: ключ сортировки, заголовок и способ получить значение из объекта.
 const COLUMNS = [
     {sort: "id", title: "id", value: c => c.id},
     {sort: "name", title: "Название", value: c => c.name},
@@ -31,8 +30,6 @@ const state = {
     editedCityId: null,
     deletion: null
 };
-
-// --- Обращение к серверу ---------------------------------------------------
 
 async function request(method, path, body, query) {
     const url = new URL(API + path, document.baseURI);
@@ -69,7 +66,6 @@ function clearFieldErrors(form) {
     form.querySelectorAll("[data-error-for]").forEach(node => (node.textContent = ""));
 }
 
-// Ошибки полей приходят с сервера разом, поэтому подсвечиваем сразу все.
 function showError(error, form) {
     if (form) {
         clearFieldErrors(form);
@@ -85,8 +81,6 @@ function showError(error, form) {
     showMessage(error.message || "Не удалось выполнить операцию");
 }
 
-// --- Переключение вкладок --------------------------------------------------
-
 const VIEWS = ["cities", "city-form", "details", "references", "special"];
 
 function showView(name) {
@@ -95,8 +89,6 @@ function showView(name) {
     });
     showMessage("");
 }
-
-// --- Вход и регистрация ----------------------------------------------------
 
 async function start() {
     try {
@@ -140,13 +132,10 @@ document.getElementById("logout-button").addEventListener("click", async () => {
     location.reload();
 });
 
-// --- Синхронизация между клиентами -----------------------------------------
-
 function connectWebSocket() {
     const protocol = location.protocol === "https:" ? "wss:" : "ws:";
     const socket = new WebSocket(`${protocol}//${location.host}${location.pathname}ws/cities`);
 
-    // Кто-то изменил данные — перечитываем то, что сейчас открыто.
     socket.onmessage = () => {
         if (!document.getElementById("view-cities").hidden) {
             loadCities();
@@ -156,8 +145,6 @@ function connectWebSocket() {
         }
     };
 }
-
-// --- Таблица городов -------------------------------------------------------
 
 function renderCitiesHead() {
     const head = document.getElementById("cities-head");
@@ -207,7 +194,6 @@ async function loadCities() {
 
     state.pageCount = Math.max(1, Math.ceil(page.totalCount / state.pageSize));
 
-    // После удаления текущая страница может оказаться за пределами выборки.
     if (state.page > state.pageCount) {
         state.page = state.pageCount;
         return loadCities();
@@ -292,8 +278,6 @@ document.querySelectorAll("nav [data-view]").forEach(element => {
         if (view === "references") loadReferences();
     });
 });
-
-// --- Форма города ----------------------------------------------------------
 
 document.getElementById("create-city").addEventListener("click", () => openCityForm(null));
 document.getElementById("city-form-cancel").addEventListener("click", () => {
@@ -392,8 +376,6 @@ function toNumber(value) {
     return value === "" || value === null ? null : Number(value);
 }
 
-// --- Просмотр по идентификатору --------------------------------------------
-
 document.getElementById("details-search").addEventListener("click", () => {
     openDetails(document.getElementById("details-id").value);
 });
@@ -465,8 +447,6 @@ function describe(title, rows) {
 
     return block;
 }
-
-// --- Координаты и губернаторы ----------------------------------------------
 
 let coordinatesCache = [];
 let humansCache = [];
@@ -570,7 +550,6 @@ document.getElementById("human-form").addEventListener("submit", async event => 
     }
 });
 
-// Перед удалением показываем связанные города и просим выбрать им замену.
 async function prepareDeletion(kind, id) {
     const linked = await request("GET", `/${kind}/${id}/cities`);
     state.deletion = {kind: kind, id: id};
@@ -624,8 +603,6 @@ document.getElementById("delete-confirm").addEventListener("click", async () => 
         showError(error);
     }
 });
-
-// --- Специальные операции --------------------------------------------------
 
 document.getElementById("special-delete-climate").addEventListener("click", async () => {
     const climate = document.getElementById("special-climate").value;
